@@ -2,6 +2,7 @@
 using Models;
 
 Console.WriteLine("Voici un petit jeux d'echec en mode console :)");
+Console.WriteLine("\n");
 
 
 var chessBoard = new ChessBoard();
