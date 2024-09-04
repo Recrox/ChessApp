@@ -107,10 +107,10 @@ public class ChessBoard
         if (!pieceToMove.IsMovable(to))
             throw new CantMoveException();
 
-        var pieceAtTarget = this.Board[to.X, to.Y] ?? throw new PieceDontExistException();
-        Console.WriteLine($"Pièce à la position d'arrivée : {pieceAtTarget.ToString()} à la position ({to.X}, {to.Y})");
-        if (pieceAtTarget.Color == pieceToMove.Color)
-            throw new SameColorException(); // Ne peut pas se déplacer sur une pièce de la même couleur
+        Piece? pieceAtTarget = GetPieceFromBoard(to);
+        //si c'est une prise de piece.
+        if (pieceAtTarget is not null)
+            EatPiece(to, pieceToMove, pieceAtTarget);
 
         // Déplacement
         this.Board[to.X, to.Y] = pieceToMove;
@@ -118,6 +118,17 @@ public class ChessBoard
         pieceToMove.Position = to; // Met à jour la position de la pièce
     }
 
+    private void EatPiece(Position to, Piece pieceToMove, Piece? pieceAtTarget)
+    {
+        Console.WriteLine($"Pièce à la position d'arrivée : {pieceAtTarget.ToString()} à la position ({to.X}, {to.Y})");
+        if (pieceAtTarget.Color == pieceToMove.Color)
+            throw new SameColorException(); // Ne peut pas se déplacer sur une pièce de la même couleur
+    }
+
+    private Piece? GetPieceFromBoard(Position pos)
+    {
+        return this.Board[pos.X, pos.Y];
+    }
 
     private void SwitchTurn()
     {
@@ -134,7 +145,7 @@ public class ChessBoard
     private void InitPlayers()
     {
         this.Players[0] = new Player { Color = Color.White, Name = "RecroX" };
-        this.Players[1] = new Player { Color = Color.Black, Name = "Blouthie" };
+        this.Players[1] = new Player { Color = Color.Black, Name = "BAAAAADNICK" };
     }
 
     private void InitChessBoard()
