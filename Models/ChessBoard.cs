@@ -69,15 +69,6 @@ public class ChessBoard
         }
     }
 
-    private Position AskToPos()
-    {
-        // Demander la position d'arrivée
-        Console.WriteLine("Entrez la position d'arrivée (format: LettreChiffre) :");
-        var toInput = Console.ReadLine();
-        var to = new Position(toInput); // Utiliser le constructeur avec une chaîne
-        return to;
-    }
-
     private Position AskFromPos()
     {
         // Demander la position de départ
@@ -85,6 +76,15 @@ public class ChessBoard
         var fromInput = Console.ReadLine();
         var from = new Position(fromInput); // Utiliser le constructeur avec une chaîne
         return from;
+    }
+
+    private Position AskToPos()
+    {
+        // Demander la position d'arrivée
+        Console.WriteLine("Entrez la position d'arrivée (format: LettreChiffre) :");
+        var toInput = Console.ReadLine();
+        var to = new Position(toInput); // Utiliser le constructeur avec une chaîne
+        return to;
     }
 
     private void MovePiece(Position from, Position to)
@@ -105,19 +105,21 @@ public class ChessBoard
         Piece? pieceAtTarget = GetPieceFromBoard(to);
         // Si c'est une prise de pièce.
         if (pieceAtTarget is not null)
-            EatPiece(to, pieceToMove, pieceAtTarget);
+            EatPiece(pieceToMove, pieceAtTarget);
 
         // Déplacement
         this.Board[to.X, to.Y] = pieceToMove;
         this.Board[from.X, from.Y] = null;
-        pieceToMove.Position = to; // Met à jour la position de la pièce
+        pieceToMove.Position = to; // Met à jour la position de la pièce qui se déplace
     }
 
-    private void EatPiece(Position to, Piece pieceToMove, Piece pieceAtTarget)
+    private void EatPiece(Piece pieceToMove, Piece pieceAtTarget)
     {
-        Console.WriteLine($"Pièce à la position d'arrivée : {pieceAtTarget.ToString()} à la position {to}");
+        Console.WriteLine($"Pièce à la position d'arrivée : {pieceAtTarget.ToString()} à la position {pieceAtTarget.Position}");
         if (pieceAtTarget.Color == pieceToMove.Color)
             throw new SameColorException(); // Ne peut pas se déplacer sur une pièce de la même couleur
+
+        this.Board[pieceAtTarget.Position.X, pieceAtTarget.Position.Y] = null;
     }
 
     private Piece? GetPieceFromBoard(Position pos)
@@ -182,33 +184,32 @@ public class ChessBoard
     private bool IsPieceOnTrajectory(Position from, Position to)
     {
         // Obtenir les différences entre les coordonnées
-        int deltaX = to.X - from.X;
-        int deltaY = to.Y - from.Y;
+        Position delta = to - from;
 
         // Déterminer la direction du mouvement
-        int stepX = deltaX == 0 ? 0 : deltaX / Math.Abs(deltaX); // 0, 1 ou -1
-        int stepY = deltaY == 0 ? 0 : deltaY / Math.Abs(deltaY); // 0, 1 ou -1
+        int stepX = delta.X == 0 ? 0 : delta.X / Math.Abs(delta.X); // 0, 1 ou -1
+        int stepY = delta.Y == 0 ? 0 : delta.Y / Math.Abs(delta.Y); // 0, 1 ou -1
 
-        // Parcourir la trajectoire
-        int currentX = from.X + stepX;
-        int currentY = from.Y + stepY;
+        // Créer une position intermédiaire
+        Position currentPos = from + new Position(stepX, stepY);
 
-        while (currentX != to.X || currentY != to.Y)
+        while (!currentPos.Equals(to))
         {
-            if (this.Board[currentX, currentY] != null)
+            if (this.Board[currentPos.X, currentPos.Y] != null)
             {
                 // Une pièce se trouve sur la trajectoire
                 return true;
             }
 
             // Passer à la prochaine case sur la trajectoire
-            currentX += stepX;
-            currentY += stepY;
+            currentPos = currentPos + new Position(stepX, stepY);
         }
 
         // Aucune pièce sur la trajectoire
         return false;
     }
+
+
 
     public override string ToString()
     {
