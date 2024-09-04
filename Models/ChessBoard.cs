@@ -13,7 +13,6 @@ public class ChessBoard
     private Piece?[,] Board;
     public Player[] Players { get; set; }
     private Player currentPLayer;
-    
 
     public ChessBoard()
     {
@@ -61,7 +60,7 @@ public class ChessBoard
             }
             catch (FormatException)
             {
-                Console.WriteLine("Format de position invalide. Assurez-vous d'utiliser le format 'x y'.");
+                Console.WriteLine("Format de position invalide. Assurez-vous d'utiliser le format 'LettreChiffre'.");
             }
             catch (Exception ex)
             {
@@ -73,51 +72,38 @@ public class ChessBoard
     private Position AskToPos()
     {
         // Demander la position d'arrivée
-        Console.WriteLine("Entrez la position d'arrivée (format: x y) :");
+        Console.WriteLine("Entrez la position d'arrivée (format: LettreChiffre) :");
         var toInput = Console.ReadLine();
-        var to = ParsePosition(toInput);
+        var to = new Position(toInput); // Utiliser le constructeur avec une chaîne
         return to;
     }
 
     private Position AskFromPos()
     {
         // Demander la position de départ
-        Console.WriteLine("Entrez la position de départ (format: x y) :");
+        Console.WriteLine("Entrez la position de départ (format: LettreChiffre) :");
         var fromInput = Console.ReadLine();
-        var from = ParsePosition(fromInput);
+        var from = new Position(fromInput); // Utiliser le constructeur avec une chaîne
         return from;
     }
 
-    private Position ParsePosition(string input)
-    {
-        var parts = input.Split(' ');
-        if (parts.Length != 2)
-            throw new FormatException("La position doit être au format 'x y'.");
-
-        if (!int.TryParse(parts[0], out int x) || !int.TryParse(parts[1], out int y))
-            throw new FormatException("Les coordonnées doivent être des nombres entiers.");
-
-        if (x < 0 || x >= 8 || y < 0 || y >= 8)
-            throw new ArgumentOutOfRangeException("Les coordonnées doivent être entre 0 et 7 compris.");
-
-        return new Position(x, y);
-    }
-
-
     private void MovePiece(Position from, Position to)
     {
-        //Check avant Deplacement
+        //Check avant Déplacement
         var pieceToMove = this.GetPieceFromBoard(from) ?? throw new PieceDontExistException();
-        Console.WriteLine($"Pièce sélectionnée : {pieceToMove.ToString()} à la position ({from.X}, {from.Y})");
+        Console.WriteLine($"Pièce sélectionnée : {pieceToMove.ToString()} à la position {from}");
 
-        if(pieceToMove.Color != this.currentPLayer.Color)
+        if (pieceToMove.Color != this.currentPLayer.Color)
             throw new NotMyPieceException();
 
         if (!pieceToMove.IsMovable(to))
-            throw new CantMoveException();
+            throw new CantMoveException("Déplacement incorrect");
+
+        if (this.IsPieceOnTrajectory(from, to))
+            throw new PieceBetweenException("Une pièce bloque la trajectoire.");
 
         Piece? pieceAtTarget = GetPieceFromBoard(to);
-        //si c'est une prise de piece.
+        // Si c'est une prise de pièce.
         if (pieceAtTarget is not null)
             EatPiece(to, pieceToMove, pieceAtTarget);
 
@@ -129,7 +115,7 @@ public class ChessBoard
 
     private void EatPiece(Position to, Piece pieceToMove, Piece pieceAtTarget)
     {
-        Console.WriteLine($"Pièce à la position d'arrivée : {pieceAtTarget.ToString()} à la position ({to.X}, {to.Y})");
+        Console.WriteLine($"Pièce à la position d'arrivée : {pieceAtTarget.ToString()} à la position {to}");
         if (pieceAtTarget.Color == pieceToMove.Color)
             throw new SameColorException(); // Ne peut pas se déplacer sur une pièce de la même couleur
     }
@@ -141,9 +127,9 @@ public class ChessBoard
 
     private void SwitchTurn()
     {
-        this.currentPLayer = this.currentPLayer == this.Players[0] 
-                                                   ?this.Players[1] 
-                                                   :this.Players[0];
+        this.currentPLayer = this.currentPLayer == this.Players[0]
+                                                  ? this.Players[1]
+                                                  : this.Players[0];
     }
 
     private bool GameIsOver()
@@ -160,37 +146,68 @@ public class ChessBoard
     private void InitChessBoard()
     {
         // Initialize white pieces
-        Board[0, 0] = new Rook(new Position(0, 0), Color.White);
-        Board[0, 1] = new Knight(new Position(0, 1), Color.White);
-        Board[0, 2] = new Bishop(new Position(0, 2), Color.White);
-        Board[0, 3] = new Queen(new Position(0, 3), Color.White);
-        Board[0, 4] = new King(new Position(0, 4), Color.White);
-        Board[0, 5] = new Bishop(new Position(0, 5), Color.White);
-        Board[0, 6] = new Knight(new Position(0, 6), Color.White);
-        Board[0, 7] = new Rook(new Position(0, 7), Color.White);
+        Board[0, 0] = new Rook(new Position(0, 0), Color.White); // A1
+        Board[0, 1] = new Knight(new Position(0, 1), Color.White); // B1
+        Board[0, 2] = new Bishop(new Position(0, 2), Color.White); // C1
+        Board[0, 3] = new Queen(new Position(0, 3), Color.White); // D1
+        Board[0, 4] = new King(new Position(0, 4), Color.White); // E1
+        Board[0, 5] = new Bishop(new Position(0, 5), Color.White); // F1
+        Board[0, 6] = new Knight(new Position(0, 6), Color.White); // G1
+        Board[0, 7] = new Rook(new Position(0, 7), Color.White); // H1
         for (int i = 0; i < 8; i++)
         {
-            Board[1, i] = new Pawn(new Position(1, i), Color.White);
+            Board[1, i] = new Pawn(new Position(1, i), Color.White); // Ligne 2
         }
 
         // Initialize black pieces
-        Board[7, 0] = new Rook(new Position(7, 0), Color.Black);
-        Board[7, 1] = new Knight(new Position(7, 1), Color.Black);
-        Board[7, 2] = new Bishop(new Position(7, 2), Color.Black);
-        Board[7, 3] = new Queen(new Position(7, 3), Color.Black);
-        Board[7, 4] = new King(new Position(7, 4), Color.Black);
-        Board[7, 5] = new Bishop(new Position(7, 5), Color.Black);
-        Board[7, 6] = new Knight(new Position(7, 6), Color.Black);
-        Board[7, 7] = new Rook(new Position(7, 7), Color.Black);
+        Board[7, 0] = new Rook(new Position(7, 0), Color.Black); // A8
+        Board[7, 1] = new Knight(new Position(7, 1), Color.Black); // B8
+        Board[7, 2] = new Bishop(new Position(7, 2), Color.Black); // C8
+        Board[7, 3] = new Queen(new Position(7, 3), Color.Black); // D8
+        Board[7, 4] = new King(new Position(7, 4), Color.Black); // E8
+        Board[7, 5] = new Bishop(new Position(7, 5), Color.Black); // F8
+        Board[7, 6] = new Knight(new Position(7, 6), Color.Black); // G8
+        Board[7, 7] = new Rook(new Position(7, 7), Color.Black); // H8
         for (int i = 0; i < 8; i++)
         {
-            Board[6, i] = new Pawn(new Position(6, i), Color.Black);
+            Board[6, i] = new Pawn(new Position(6, i), Color.Black); // Ligne 7
         }
     }
 
     private void ShowChessBoard()
     {
         Console.WriteLine(this.ToString());
+    }
+
+    private bool IsPieceOnTrajectory(Position from, Position to)
+    {
+        // Obtenir les différences entre les coordonnées
+        int deltaX = to.X - from.X;
+        int deltaY = to.Y - from.Y;
+
+        // Déterminer la direction du mouvement
+        int stepX = deltaX == 0 ? 0 : deltaX / Math.Abs(deltaX); // 0, 1 ou -1
+        int stepY = deltaY == 0 ? 0 : deltaY / Math.Abs(deltaY); // 0, 1 ou -1
+
+        // Parcourir la trajectoire
+        int currentX = from.X + stepX;
+        int currentY = from.Y + stepY;
+
+        while (currentX != to.X || currentY != to.Y)
+        {
+            if (this.Board[currentX, currentY] != null)
+            {
+                // Une pièce se trouve sur la trajectoire
+                return true;
+            }
+
+            // Passer à la prochaine case sur la trajectoire
+            currentX += stepX;
+            currentY += stepY;
+        }
+
+        // Aucune pièce sur la trajectoire
+        return false;
     }
 
     public override string ToString()
@@ -201,7 +218,7 @@ public class ChessBoard
         strToReturn += strPlayer;
 
         // Ajouter les lettres des colonnes (A à H)
-        strToReturn += "   "; // Espace pour l'alignement des numéros des colonnes
+        strToReturn += "   "; // Espace pour l'alignement des lettres des colonnes
         for (int col = 0; col < Board.GetLength(1); col++)
         {
             strToReturn += $"{(char)('A' + col)} ";
@@ -223,6 +240,4 @@ public class ChessBoard
 
         return strToReturn + "\n";
     }
-
-
 }

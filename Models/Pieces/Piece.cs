@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using ChessApp.Models.Exceptions;
 using Models;
 
 namespace ChessApp.Models.Pieces;
