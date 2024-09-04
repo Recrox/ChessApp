@@ -92,7 +92,7 @@ public class ChessBoard
             throw new FormatException("Les coordonnées doivent être des nombres entiers.");
 
         if (x < 0 || x >= 8 || y < 0 || y >= 8)
-            throw new ArgumentOutOfRangeException("Les coordonnées doivent être entre 0 et 7.");
+            throw new ArgumentOutOfRangeException("Les coordonnées doivent être entre 0 et 7 compris.");
 
         return new Position(x, y);
     }
@@ -101,8 +101,11 @@ public class ChessBoard
     private void MovePiece(Position from, Position to)
     {
         //Check avant Deplacement
-        var pieceToMove = this.Board[from.X, from.Y] ?? throw new PieceDontExistException();
+        var pieceToMove = this.GetPieceFromBoard(from) ?? throw new PieceDontExistException();
         Console.WriteLine($"Pièce sélectionnée : {pieceToMove.ToString()} à la position ({from.X}, {from.Y})");
+
+        if(pieceToMove.Color != this.currentPLayer.Color)
+            throw new NotMyPieceException();
 
         if (!pieceToMove.IsMovable(to))
             throw new CantMoveException();
@@ -118,7 +121,7 @@ public class ChessBoard
         pieceToMove.Position = to; // Met à jour la position de la pièce
     }
 
-    private void EatPiece(Position to, Piece pieceToMove, Piece? pieceAtTarget)
+    private void EatPiece(Position to, Piece pieceToMove, Piece pieceAtTarget)
     {
         Console.WriteLine($"Pièce à la position d'arrivée : {pieceAtTarget.ToString()} à la position ({to.X}, {to.Y})");
         if (pieceAtTarget.Color == pieceToMove.Color)
@@ -188,7 +191,7 @@ public class ChessBoard
     {
         var strToReturn = string.Empty;
 
-        var strPlayer = $"au tour de {this.currentPLayer.ToString()} \n\n";
+        var strPlayer = $"au tour de {this.currentPLayer.ToString()} de couleur {this.currentPLayer.Color} \n\n";
         strToReturn += strPlayer;
         for (int row = 0; row < Board.GetLength(0); row++)
         {
