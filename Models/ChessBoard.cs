@@ -21,11 +21,6 @@ public class ChessBoard
         this.Players = new Player[2];
     }
 
-    //public ChessBoard(Player[] players) : this()
-    //{
-        
-    //}
-
     public void StartGame()
     {
         InitPlayers();
@@ -46,15 +41,8 @@ public class ChessBoard
         {
             try
             {
-                // Demander la position de départ
-                Console.WriteLine("Entrez la position de départ (format: x y) :");
-                var fromInput = Console.ReadLine();
-                var from = ParsePosition(fromInput);
-
-                // Demander la position d'arrivée
-                Console.WriteLine("Entrez la position d'arrivée (format: x y) :");
-                var toInput = Console.ReadLine();
-                var to = ParsePosition(toInput);
+                Position from = AskFromPos();
+                Position to = AskToPos();
 
                 // Tenter de déplacer la pièce
                 MovePiece(from, to);
@@ -80,6 +68,24 @@ public class ChessBoard
                 Console.WriteLine($"Une erreur inattendue est survenue : {ex.Message}");
             }
         }
+    }
+
+    private Position AskToPos()
+    {
+        // Demander la position d'arrivée
+        Console.WriteLine("Entrez la position d'arrivée (format: x y) :");
+        var toInput = Console.ReadLine();
+        var to = ParsePosition(toInput);
+        return to;
+    }
+
+    private Position AskFromPos()
+    {
+        // Demander la position de départ
+        Console.WriteLine("Entrez la position de départ (format: x y) :");
+        var fromInput = Console.ReadLine();
+        var from = ParsePosition(fromInput);
+        return from;
     }
 
     private Position ParsePosition(string input)
@@ -191,19 +197,32 @@ public class ChessBoard
     {
         var strToReturn = string.Empty;
 
-        var strPlayer = $"au tour de {this.currentPLayer.ToString()} de couleur {this.currentPLayer.Color} \n\n";
+        var strPlayer = $"au tour de {this.currentPLayer.Name} de couleur {this.currentPLayer.Color.Name} \n\n";
         strToReturn += strPlayer;
+
+        // Ajouter les lettres des colonnes (A à H)
+        strToReturn += "   "; // Espace pour l'alignement des numéros des colonnes
+        for (int col = 0; col < Board.GetLength(1); col++)
+        {
+            strToReturn += $"{(char)('A' + col)} ";
+        }
+        strToReturn += "\n";
+
         for (int row = 0; row < Board.GetLength(0); row++)
         {
+            // Ajouter le numéro de la ligne (8 à 1)
+            strToReturn += (8 - row) + "  "; // Espace pour l'alignement
             for (int col = 0; col < Board.GetLength(1); col++)
             {
                 var piece = Board[row, col];
                 strToReturn += piece != null ? piece.ToString() : ".";
                 strToReturn += " ";
             }
-            strToReturn += "\n"; 
+            strToReturn += "\n";
         }
 
         return strToReturn + "\n";
     }
+
+
 }

@@ -16,7 +16,7 @@ public class Bishop : Piece
 
     public override string ToString()
     {
-        return "B";
+        return Color == Color.White ? "♗" : "♝";
     }
 }
 

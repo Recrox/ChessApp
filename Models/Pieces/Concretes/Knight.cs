@@ -19,7 +19,7 @@ public class Knight : Piece
 
     public override string ToString()
     {
-        return "K";
+        return Color == Color.White ? "♘" : "♞";
     }
 }
 

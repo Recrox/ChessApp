@@ -38,7 +38,7 @@ public class Pawn : Piece
 
     public override string ToString()
     {
-        return "P";
+        return Color == Color.White ? "♙" : "♟";
     }
 }
 

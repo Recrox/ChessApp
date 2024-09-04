@@ -19,7 +19,7 @@ public class King : Piece
 
     public override string ToString()
     {
-        return "9";
+        return Color == Color.White ? "♔" : "♚";
     }
 }
 
