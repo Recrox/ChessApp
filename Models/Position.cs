@@ -37,7 +37,7 @@ public class Position
 
     private bool IsOutChessBoard()
     {
-        return X < 0 || X >= 8 || Y < 0 || Y >= 8;
+        return X < 0 || X >= ChessBoard.COLUMN_SIZE || Y < 0 || Y >= ChessBoard.ROW_SIZE;
     }
 
     public static Position operator +(Position pos1, Position pos2)

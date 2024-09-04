@@ -7,8 +7,8 @@ namespace Models;
 
 public class ChessBoard
 {
-    private const int COLUMN_SIZE = 8;
-    private const int ROW_SIZE = 8;
+    public const int COLUMN_SIZE = 8;
+    public const int ROW_SIZE = 8;
 
     private Piece?[,] Board;
     public Player[] Players { get; set; }
@@ -23,7 +23,8 @@ public class ChessBoard
     public void StartGame()
     {
         InitPlayers();
-        InitChessBoard();
+        //InitChessBoard();
+        InitChessBoardAlgebric();
         this.currentPLayer = this.Players[0];
 
         while (!GameIsOver())
@@ -176,6 +177,44 @@ public class ChessBoard
         }
     }
 
+    private void InitChessBoardAlgebric()
+    {
+        // Initialize white pieces
+        Board[0, 0] = new Rook(new Position("A1"), Color.White);
+        Board[0, 1] = new Knight(new Position("B1"), Color.White);
+        Board[0, 2] = new Bishop(new Position("C1"), Color.White);
+        Board[0, 3] = new Queen(new Position("D1"), Color.White);
+        Board[0, 4] = new King(new Position("E1"), Color.White);
+        Board[0, 5] = new Bishop(new Position("F1"), Color.White);
+        Board[0, 6] = new Knight(new Position("G1"), Color.White);
+        Board[0, 7] = new Rook(new Position("H1"), Color.White);
+
+        // Place white pawns on the second row
+        for (int i = 0; i < 8; i++)
+        {
+            Board[1, i] = new Pawn(new Position($"{(char)('A' + i)}2"), Color.White);
+        }
+
+        // Initialize black pieces
+        Board[7, 0] = new Rook(new Position("A8"), Color.Black);
+        Board[7, 1] = new Knight(new Position("B8"), Color.Black);
+        Board[7, 2] = new Bishop(new Position("C8"), Color.Black);
+        Board[7, 3] = new Queen(new Position("D8"), Color.Black);
+        Board[7, 4] = new King(new Position("E8"), Color.Black);
+        Board[7, 5] = new Bishop(new Position("F8"), Color.Black);
+        Board[7, 6] = new Knight(new Position("G8"), Color.Black);
+        Board[7, 7] = new Rook(new Position("H8"), Color.Black);
+
+        // Place black pawns on the seventh row
+        for (int i = 0; i < 8; i++)
+        {
+            Board[6, i] = new Pawn(new Position($"{(char)('A' + i)}7"), Color.Black);
+        }
+    }
+
+
+
+
     private void ShowChessBoard()
     {
         Console.WriteLine(this.ToString());
@@ -208,9 +247,6 @@ public class ChessBoard
         // Aucune pièce sur la trajectoire
         return false;
     }
-
-
-
     public override string ToString()
     {
         var strToReturn = string.Empty;
@@ -226,10 +262,11 @@ public class ChessBoard
         }
         strToReturn += "\n";
 
-        for (int row = 0; row < Board.GetLength(0); row++)
+        // Ajouter les lignes du plateau (8 à 1)
+        for (int row = Board.GetLength(0) - 1; row >= 0; row--)
         {
             // Ajouter le numéro de la ligne (8 à 1)
-            strToReturn += (8 - row) + "  "; // Espace pour l'alignement
+            strToReturn += (row + 1) + "  "; // Espace pour l'alignement
             for (int col = 0; col < Board.GetLength(1); col++)
             {
                 var piece = Board[row, col];
@@ -241,4 +278,5 @@ public class ChessBoard
 
         return strToReturn + "\n";
     }
+
 }
